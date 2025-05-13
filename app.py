@@ -30,14 +30,18 @@ def chat():
 
     try:
         res = requests.post("https://api.openai.com/v1/chat/completions", json=body, headers=headers)
-        print("✅ Phản hồi OpenAI:", res.status_code, res.text)  # In phản hồi API ra log
-        res.raise_for_status()  # Gây lỗi nếu không phải 2xx
-        reply = res.json()["choices"][0]["message"]["content"]
+        print("📦 Status Code:", res.status_code)
+        print("📩 Raw Response:", res.text)
+
+        res.raise_for_status()
+        json_data = res.json()
+        reply = json_data["choices"][0]["message"]["content"]
         return jsonify({"reply": reply})
+
     except Exception as e:
-        print("❌ OpenAI API Error:", e)
-        print("📩 Nội dung trả về:", res.text if 'res' in locals() else 'Không nhận được phản hồi')
+        print("❌ Exception:", str(e))
         return jsonify({"reply": "⚠️ Hệ thống gặp lỗi khi kết nối đến AI."}), 500
+
 
 @app.route("/web")
 def chatbot_page():
