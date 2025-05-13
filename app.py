@@ -24,7 +24,7 @@ def chat():
     }
 
     body = {
-        "model": "gpt-3.5-turbo",
+        "model": "gpt-3.5-turbo",  # model phổ biến, hỗ trợ tốt
         "messages": [{"role": "user", "content": user_message}]
     }
 
@@ -34,14 +34,11 @@ def chat():
         print("📩 Raw Response:", res.text)
 
         res.raise_for_status()
-        json_data = res.json()
-        reply = json_data["choices"][0]["message"]["content"]
+        reply = res.json()["choices"][0]["message"]["content"]
         return jsonify({"reply": reply})
 
     except Exception as e:
         print("❌ Exception:", str(e))
-        print("❌ OpenAI API Error:", e)
-        print("📩 Nội dung trả về:", res.text if 'res' in locals() else 'Không nhận được phản hồi')
         return jsonify({"reply": "⚠️ Hệ thống gặp lỗi khi kết nối đến AI."}), 500
 
 @app.route("/web")
