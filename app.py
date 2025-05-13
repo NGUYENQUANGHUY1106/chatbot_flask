@@ -29,16 +29,20 @@ def chat():
             "messages": [{"role": "user", "content": user_message}]
         }
 
-        # ✅ Gửi request tới OpenAI và xử lý lỗi nếu có
-        response = requests.post("https://api.openai.com/v1/chat/completions", json=body, headers=headers)
-        response.raise_for_status()  # Nếu OpenAI trả về lỗi → sẽ raise exception
+        res = requests.post("https://api.openai.com/v1/chat/completions", json=body, headers=headers)
 
-        reply = response.json()["choices"][0]["message"]["content"]
+        # In toàn bộ nội dung phản hồi nếu status code không phải 200
+        if res.status_code != 200:
+            print("❌ RESPONSE FROM OPENAI:", res.status_code, res.text)
+            return jsonify({"reply": "⚠️ Hệ thống gặp lỗi khi kết nối đến AI."}), 500
+
+        reply = res.json()["choices"][0]["message"]["content"]
         return jsonify({"reply": reply})
 
     except Exception as e:
-        print("❌ Lỗi khi gọi OpenAI:", e)
-        return jsonify({"reply": "⚠️ Xin lỗi, hệ thống đang gặp sự cố. Vui lòng thử lại sau!"}), 500
+        print("❌ Lỗi exception:", e)
+        return jsonify({"reply": "⚠️ Hệ thống gặp lỗi xử lý AI."}), 500
+
 
 @app.route("/web")
 def chatbot_page():
