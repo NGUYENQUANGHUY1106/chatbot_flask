@@ -41,9 +41,8 @@ def chat():
     except Exception as e:
         print("❌ Exception:", str(e))
         print("❌ OpenAI API Error:", e)
-        print("📩 Nội dung trả về:", res.text if 'res' in locals()
+        print("📩 Nội dung trả về:", res.text if 'res' in locals() else 'Không nhận được phản hồi')
         return jsonify({"reply": "⚠️ Hệ thống gặp lỗi khi kết nối đến AI."}), 500
-
 
 @app.route("/web")
 def chatbot_page():
