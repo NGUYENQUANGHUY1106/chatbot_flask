@@ -40,6 +40,8 @@ def chat():
 
     except Exception as e:
         print("❌ Exception:", str(e))
+           print("❌ OpenAI API Error:", e)
+    print("📩 Nội dung trả về:", res.text if 'res' in locals()
         return jsonify({"reply": "⚠️ Hệ thống gặp lỗi khi kết nối đến AI."}), 500
 
 
