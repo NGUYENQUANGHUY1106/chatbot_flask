@@ -8,6 +8,8 @@ CORS(app)
 
 # Lấy API key từ biến môi trường
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+print("🔑 OPENAI_API_KEY:", OPENAI_API_KEY)  # Thêm dòng này
+
 
 # Kiểm tra API key có tồn tại không
 if not OPENAI_API_KEY:
@@ -21,23 +23,24 @@ def home():
 def chat():
     data = request.get_json()
     user_message = data.get("message")
-    print("📩 Tin nhắn người dùng:", user_message)
-    print("🔑 API Key (ẩn bớt):", OPENAI_API_KEY[:10] + "..." if OPENAI_API_KEY else "Không có")
-
-    headers = {
-        "Authorization": f"Bearer {OPENAI_API_KEY}",
-        "Content-Type": "application/json"
-    }
-
-    body = {
-        "model": "gpt-3.5-turbo",
-        "messages": [{"role": "user", "content": user_message}]
-    }
 
     try:
+        if not OPENAI_API_KEY:
+            raise ValueError("🔐 API key không tồn tại trong môi trường.")
+
+        headers = {
+            "Authorization": f"Bearer {OPENAI_API_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        body = {
+            "model": "gpt-3.5-turbo",
+            "messages": [{"role": "user", "content": user_message}]
+        }
+
         res = requests.post("https://api.openai.com/v1/chat/completions", json=body, headers=headers)
         print("📦 Status Code:", res.status_code)
-        print("📨 Raw Response:", res.text)
+        print("📩 Raw Response:", res.text)
 
         res.raise_for_status()
         reply = res.json()["choices"][0]["message"]["content"]
@@ -45,8 +48,8 @@ def chat():
 
     except Exception as e:
         print("❌ Exception:", str(e))
-        print("📩 Nội dung trả về:", res.text if 'res' in locals() else "Không có phản hồi từ OpenAI")
-        return jsonify({"reply": "⚠️ Hệ thống gặp lỗi khi kết nối đến AI."}), 500
+        return jsonify({"reply": f"⚠️ Hệ thống lỗi: {str(e)}"}), 500
+
 
 @app.route("/web")
 def chatbot_page():
