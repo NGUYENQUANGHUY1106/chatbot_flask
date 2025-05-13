@@ -6,7 +6,6 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-# ✅ Lấy API key từ biến môi trường (Render sẽ truyền key này vào)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")  
 
 @app.route("/")
@@ -31,18 +30,18 @@ def chat():
 
         res = requests.post("https://api.openai.com/v1/chat/completions", json=body, headers=headers)
 
-        # In toàn bộ nội dung phản hồi nếu status code không phải 200
+        # 👉 Ghi log nếu lỗi
         if res.status_code != 200:
-            print("❌ RESPONSE FROM OPENAI:", res.status_code, res.text)
+            print("❌ OpenAI API Error:", res.status_code)
+            print("📩 Nội dung trả về:", res.text)
             return jsonify({"reply": "⚠️ Hệ thống gặp lỗi khi kết nối đến AI."}), 500
 
         reply = res.json()["choices"][0]["message"]["content"]
         return jsonify({"reply": reply})
 
     except Exception as e:
-        print("❌ Lỗi exception:", e)
+        print("❌ Exception:", e)
         return jsonify({"reply": "⚠️ Hệ thống gặp lỗi xử lý AI."}), 500
-
 
 @app.route("/web")
 def chatbot_page():
