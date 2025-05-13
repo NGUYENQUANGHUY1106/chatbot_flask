@@ -14,34 +14,29 @@ def home():
 
 @app.route("/chat", methods=["POST"])
 def chat():
+    data = request.get_json()
+    user_message = data.get("message")
+
+    headers = {
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    body = {
+        "model": "gpt-3.5-turbo",
+        "messages": [{"role": "user", "content": user_message}]
+    }
+
     try:
-        data = request.get_json()
-        user_message = data.get("message")
-
-        headers = {
-            "Authorization": f"Bearer {OPENAI_API_KEY}",
-            "Content-Type": "application/json"
-        }
-
-        body = {
-            "model": "gpt-3.5-turbo",
-            "messages": [{"role": "user", "content": user_message}]
-        }
-
         res = requests.post("https://api.openai.com/v1/chat/completions", json=body, headers=headers)
-
-        # 👉 Ghi log nếu lỗi
-        if res.status_code != 200:
-            print("❌ OpenAI API Error:", res.status_code)
-            print("📩 Nội dung trả về:", res.text)
-            return jsonify({"reply": "⚠️ Hệ thống gặp lỗi khi kết nối đến AI."}), 500
-
+        res.raise_for_status()  # Bắt lỗi HTTP nếu có
         reply = res.json()["choices"][0]["message"]["content"]
         return jsonify({"reply": reply})
-
     except Exception as e:
-        print("❌ Exception:", e)
-        return jsonify({"reply": "⚠️ Hệ thống gặp lỗi xử lý AI."}), 500
+        print("❌ OpenAI API Error:", e)
+        print("📩 Nội dung trả về:", res.text if 'res' in locals() else 'Không nhận được phản hồi')
+        return jsonify({"reply": "⚠️ Hệ thống gặp lỗi khi kết nối đến AI."}), 500
+
 
 @app.route("/web")
 def chatbot_page():
