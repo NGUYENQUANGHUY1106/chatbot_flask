@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Chatbot</title>
+</head>
+<body>
+  <h2>Trợ lý AI</h2>
+  <textarea id="input" rows="4" cols="50" placeholder="Nhập câu hỏi..."></textarea><br>
+  <button onclick="send()">Gửi</button>
+  <p id="response"></p>
+
+  <script>
+    async function send() {
+      const msg = document.getElementById("input").value;
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({message: msg})
+      });
+      const data = await res.json();
+      document.getElementById("response").innerText = data.reply;
+    }
+  </script>
+</body>
+</html>
